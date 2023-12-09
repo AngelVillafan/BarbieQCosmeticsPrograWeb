@@ -1,0 +1,110 @@
+﻿@model BarbieQ.Areas.Admin.Models.AdminAgregarProductoViewModel;
+@{
+    Layout = "_layoutAdmin";
+}
+<main class="admin-cat admin-prod">
+<script src="~/lib/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        language: 'es_MX',
+        toolbar: 'undo redo | cut copy paste | bold italic | alignleft aligncenter alignright alignjustify | outdent indent'
+    });
+</script>
+    <div class="producto-imagenes">
+        <div class="imagen-grande">
+            <img />
+        </div>
+        <div class="lista-imagenes">
+            <div>
+                <img src="~/img/productos/@(Model.Producto.Id).jpg" />
+            </div>
+            <div>
+                <img src="~/img/productos/@(Model.Producto.Id)_alternate.jpg" />
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>
+            <h1>Editar Producto</h1>
+        </div>
+        <form method="post" action="~/Admin/Productos/Editar" enctype="multipart/form-data">
+            <label for="">Nombre del producto</label>
+            <input type="text" name="Producto.Nombre" placeholder="Nombre..." id="" value="@Model.Producto.Nombre" />
+            <input hidden value="@Model.Producto.Id" name="Producto.Id"/>
+            <label>Selecciona la categoria del producto</label>
+            <select  name="Producto.IdCategoria">
+                @foreach (var item in Model.Categorias)
+                {
+                    if(item.Id == Model.Producto.IdCategoria)
+                    {
+                        <option selected value="@item.Id">
+                            @item.Nombre
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@item.Id">@item.Nombre</option>
+                    }
+
+                }
+                
+                
+                
+            </select>
+
+            <label for="">Precio</label>
+            <input type="number" name="Producto.Precio" placeholder="Precio..." id="" value="@Model.Producto.Precio" />
+
+            <label for="">Unidades disponibles del producto</label>
+            <input type="number" name="Producto.CantidadExistencia" placeholder="Unidades..." id="" value="@Model.Producto.CantidadExistencia"/>
+
+            <label for="">Descripcion</label>
+            <textarea wrap="soft" name="Producto.Descripcion" id="mytextarea">@Model.Producto.Descripcion</textarea>
+
+            <label for="">Ingredientes</label>
+            <textarea wrap="soft" name="Producto.Ingredientes">@Model.Producto.Ingredientes</textarea>
+
+            <label for="">Agregue la imagen principal del producto</label>
+            <input type="file" name="ImagenPrincipal" value="@Model.ImagenPrincipal" accept="image/jpeg" placeholder="Seleccione una imagen" id="" />
+
+            <label for="">Agregue la imagen del modelo usando el producto</label>
+            <input type="file" name="ImagenModelo" value="@Model.ImagenModelo" accept="image/jpeg" placeholder="Seleccione una imagen" id="" />
+
+            <p class="txt-error">@Html.ValidationSummary(true)</p>
+
+            <div class="cat-btns">
+                <a class="boton-cancelar" href="~/Admin/Productos/Index">Cancelar</a>
+                <input type="submit" value="Guardar" />
+            </div>
+        </form>
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var listaImagenes = document.querySelectorAll(".lista-imagenes img");
+            var imagenGrande = document.querySelector(".imagen-grande img");
+            var imagenSeleccionada = document.querySelector(".imagen-seleccionada img");
+
+            listaImagenes[0].classList.add("imagen-seleccionada");
+            imagenGrande.src = listaImagenes[0].src;
+
+            listaImagenes.forEach(function (imagen) {
+                imagen.addEventListener("click", function () {
+                    // Almacenar la URL actual de la imagen grande
+                    imagenGrande.setAttribute("data-image", imagenGrande.src);
+
+                    // Cambiar la imagen grande
+                    imagenGrande.src = imagen.src;
+
+                    // Cambiar la clase imagen-seleccionada
+                    document
+                        .querySelector(".imagen-seleccionada")
+                        .classList.remove("imagen-seleccionada");
+                    this.parentElement.classList.add("imagen-seleccionada");
+                });
+            });
+        });
+    </script>
+</main>
