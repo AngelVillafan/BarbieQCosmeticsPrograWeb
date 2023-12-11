@@ -43,8 +43,8 @@
         {
             <div class="ultimos-agregados-item">
                 <div class="stack-img">
-                    <img alt="x" src="~/img/productos/@(item.Id).jpg" />
-                    <img alt="y" src="~/img/productos/@(item.Id)_alternate.jpg" />
+                    <img alt="x" src="~/img/productos/@(item.Id).jpg?v=@(item.FechaModificacion)" />
+                    <img alt="y" src="~/img/productos/@(item.Id)_alternate.jpg?v=@(item.FechaModificacionAlternative)" />
                 </div>
 
                 <h2>@item.Nombre</h2>

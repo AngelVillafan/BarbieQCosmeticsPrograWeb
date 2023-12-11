@@ -16,6 +16,7 @@ namespace BarbieQ.Controllers
         public ProductosRepository productosRepository { get; }
         public CategoriaRepository categoriassRepository { get; }
         public Repository<Cliente> _clienteRepos { get; }
+
         public HomeController(ProductosRepository pR, CategoriaRepository cR, Repository<Cliente> clR)
         {
             productosRepository = pR;
@@ -28,7 +29,7 @@ namespace BarbieQ.Controllers
 
         public IActionResult Index()
         {
-
+           
             IndexViewModel vm = new IndexViewModel()
             {
                 Ultimos3Productos = productosRepository.GetAll().Select(x => new ProductosModel
@@ -41,7 +42,9 @@ namespace BarbieQ.Controllers
                 {
                     Id = x.Id,
                     Nombre = x.Nombre,
-                    Precio = x.Precio
+                    Precio = x.Precio,
+                    FechaModificacion = new FileInfo($"wwwroot/productos/{x.Id}.jpg").LastWriteTime.ToString("yyyyMMddhhmm"),
+                    FechaModificacionAlternative = new FileInfo($"wwwroot/productos/{x.Id}_alternative.jpg").LastWriteTime.ToString("yyyyMMddhhmm")
                 }).Take(12).OrderBy(x => x.Nombre),
                 TotalCarrito = GetTotalCarrito()
             };
@@ -54,6 +57,7 @@ namespace BarbieQ.Controllers
 
         public IActionResult VerCategoria(string Id)  // Id es el nombre de la categoria
         {
+          
             Id = Id.Replace("-", " ");
             var cat = categoriassRepository.GetByNombre(Id);
             if (cat == null) { return RedirectToAction("Index"); }
@@ -67,7 +71,9 @@ namespace BarbieQ.Controllers
                 {
                     Id = x.Id,
                     Nombre = x.Nombre,
-                    Precio = x.Precio
+                    Precio = x.Precio,
+                    FechaModificacion = new FileInfo($"wwwroot/productos/{x.Id}.jpg").LastWriteTime.ToString("yyyyMMddhhmm"),
+                    FechaModificacionAlternative = new FileInfo($"wwwroot/productos/{x.Id}_alternative.jpg").LastWriteTime.ToString("yyyyMMddhhmm")
                 }).OrderBy(x => x.Nombre)
             };
             Random r = new Random();
@@ -94,11 +100,15 @@ namespace BarbieQ.Controllers
                 Descripcion = producto.Descripcion ?? "",
                 Precio = producto.Precio,
                 Nombre = producto.Nombre ?? "",
+                FechaModificacion = new FileInfo($"wwwroot/productos/{producto.Id}.jpg").LastWriteTime.ToString("yyyyMMddhhmm"),
+                FechaModificacionAlternative = new FileInfo($"wwwroot/productos/{producto.Id}_alternative.jpg").LastWriteTime.ToString("yyyyMMddhhmm"),
                 Productos = productosRepository.GetAll().Select(x => new ProductosModel
                 {
                     Id = x.Id,
                     Nombre = x.Nombre,
-                    Precio = x.Precio
+                    Precio = x.Precio,
+                    FechaModificacion = new FileInfo($"wwwroot/productos/{x.Id}.jpg").LastWriteTime.ToString("yyyyMMddhhmm"),
+                    FechaModificacionAlternative = new FileInfo($"wwwroot/productos/{x.Id}_alternative.jpg").LastWriteTime.ToString("yyyyMMddhhmm")
                 }).Take(4)
             };
             return View(vm);
@@ -227,6 +237,8 @@ namespace BarbieQ.Controllers
                 // Obtener el carrito desde la cookie
                 List<CarritoViewModel>? carritoItems = JsonConvert.DeserializeObject<List<CarritoViewModel>>(Request.Cookies["ShoppingCart"]);
 
+
+
                 // Buscar y eliminar el artículo del carrito
                 CarritoViewModel? itemToRemove = carritoItems.FirstOrDefault(item => item.Id == productId);
                 if (itemToRemove != null)
@@ -261,6 +273,21 @@ namespace BarbieQ.Controllers
             {
                 // Obtener el carrito desde la cookie
                 List<CarritoViewModel>? carritoItems = JsonConvert.DeserializeObject<List<CarritoViewModel>>(Request.Cookies["ShoppingCart"]);
+
+                if(carritoItems != null)
+                {
+                    foreach (var item in carritoItems)
+                    {
+                         var  x =productosRepository.Get(item.Id);
+                        if(x != null)
+                        {
+                            x.CantidadExistencia -= item.Cantidad;
+                            if(x.CantidadExistencia < 0) { x.CantidadExistencia = 0; }
+                            productosRepository.Update(x);
+                        }
+                    }
+
+                }
 
                 // Limpiar la lista eliminando todos los elementos
                 carritoItems.Clear();

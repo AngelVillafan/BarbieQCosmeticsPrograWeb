@@ -5,5 +5,6 @@
         public IEnumerable<ProductosModel> Ultimos3Productos { get; set; } = null!;
         public IEnumerable<ProductosModel> ProductosFavoritos { get; set; } = null!;
         public int TotalCarrito { get; set; }
+       // public string FechaModificacion { get; set; } = null!;
     }
 }
